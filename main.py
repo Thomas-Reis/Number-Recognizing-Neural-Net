@@ -4,15 +4,48 @@ import matplotlib.pyplot as plt
 import numpy as np
 from PIL import Image
 
-# Opens the test Image
-img = Image.open('Numbers/0.bmp')
-# Converts image to Black and White
-img = img.convert('L')
-# Sets a numpy array of size [width x height] with the greyscale value of each pixel (255 = black), (17 = white))
-arr = np.array(img)
-print('WIDTH: ' + str(arr.shape[1]))
-print('HEIGHT: ' + str(arr.shape[0]))
-print(arr)
+test_directory = 'Numbers/'
+train_directory = 'Numbers/'
+
+i = 0
+default_label = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+train_images = []
+train_labels = []
+
+for f in os.listdir(train_directory):
+    # Opens the test Image
+    img = Image.open(train_directory + f)
+    # Converts image to Black and White
+    img = img.convert('L')
+    # Sets a numpy array of size [width x height] with the greyscale value of each pixel (>200 = White), (<50 = Black))
+    arr = np.array(img)
+    train_images.append(np.copy(arr))
+    default_label[i] = 1
+    train_labels.append(np.copy(default_label))
+    default_label[i] = 0
+    i += 1
+    # print('WIDTH: ' + str(arr.shape[1]))
+    # print('HEIGHT: ' + str(arr.shape[0]))
+    # print(arr)
+
+
+test_images = []
+test_labels = []
+for f in os.listdir(test_directory):
+    # Opens the test Image
+    img = Image.open(test_directory + f)
+    # Converts image to Black and White
+    img = img.convert('L')
+    # Sets a numpy array of size [width x height] with the greyscale value of each pixel (>200 = White), (<50 = Black))
+    arr = np.array(img)
+    test_images.append(np.copy(arr))
+    default_label[i] = 1
+    test_labels.append(np.copy(default_label))
+    default_label[i] = 0
+    i += 1
+    # print('WIDTH: ' + str(arr.shape[1]))
+    # print('HEIGHT: ' + str(arr.shape[0]))
+    # print(arr)
 
 
 # Number of training examples we have
