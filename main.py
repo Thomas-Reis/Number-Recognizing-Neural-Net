@@ -106,18 +106,16 @@ print(predicted)
 # Display the predictions and the ground truth visually.
 fig = plt.figure(figsize=(10, 10))
 for i in range(len(sample_images)):
-    truth = np.where(sample_labels[i] == 1)
+    actual = np.where(sample_labels[i] == 1)
     prediction = predicted[i]
     plt.subplot(5, 2, 1 + i)
     plt.axis('off')
-    color = 'green' if truth == prediction else 'red'
-    plt.text(5, 5, "Truth:        {0}\nPrediction: {1}".format(truth[0], prediction),
+    color = 'green' if actual == prediction else 'red'
+    predict_string = str(actual[0]).replace('[', '').replace(']', '')
+    plt.text(5, 5, "Actual:       {}\nPredicted: {}".format(predict_string, prediction),
              fontsize=12, color=color)
     plt.imshow(np.reshape(sample_images[i], (-1, 5)), cmap="gray")
 
 plt.show()
 
-
-
-
-print('break here')
+print("Complete!")
