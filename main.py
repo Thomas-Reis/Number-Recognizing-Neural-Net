@@ -35,7 +35,7 @@ n_hidden1 = 5
 n_output = 10
 
 # Neural Network Variables
-learning_rate = 1e-4
+learning_rate = 0.0001
 n_iterations = 1000
 batch_size = 10
 dropout = 0.5
