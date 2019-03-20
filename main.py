@@ -3,6 +3,7 @@ import os
 import matplotlib.pyplot as plt
 import numpy as np
 import data_handler
+import random
 from random import randint
 
 test_directory = 'Numbers/'
@@ -27,7 +28,7 @@ n_validation = len(validation_images)
 n_test = len(test_images)
 
 # set the number of neurons per layer
-# 45 input for each pixel
+# 45 inputs for each pixel
 n_input = 45
 # 5 because the example has 5 on hidden layer 1
 n_hidden1 = 5
@@ -85,6 +86,38 @@ rand_test = randint(0,9)
 prediction = sess.run(tf.argmax(output_layer,1), feed_dict={X: [test_images[rand_test]]})
 print ("Prediction for test image:", np.squeeze(prediction))
 print ("actual value for test image: " + str(rand_test))
+
+
+
+
+
+# Pick 10 random images
+sample_indexes = random.sample(range(len(train_images)), 10)
+sample_images = [train_images[i] for i in sample_indexes]
+sample_labels = [train_labels[i] for i in sample_indexes]
+
+# Run the "correct_pred" operation
+predicted = sess.run(tf.argmax(output_layer,1), feed_dict={X: sample_images})
+
+# Print the real and predicted labels
+print(sample_labels)
+print(predicted)
+
+# Display the predictions and the ground truth visually.
+fig = plt.figure(figsize=(10, 10))
+for i in range(len(sample_images)):
+    truth = np.where(sample_labels[i] == 1)
+    prediction = predicted[i]
+    plt.subplot(5, 2, 1 + i)
+    plt.axis('off')
+    color = 'green' if truth == prediction else 'red'
+    plt.text(5, 5, "Truth:        {0}\nPrediction: {1}".format(truth[0], prediction),
+             fontsize=12, color=color)
+    plt.imshow(np.reshape(sample_images[i], (-1, 5)), cmap="gray")
+
+plt.show()
+
+
 
 
 print('break here')
