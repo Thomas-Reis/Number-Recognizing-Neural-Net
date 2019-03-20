@@ -5,6 +5,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 from PIL import Image
 import data_handler
+from random import randint
 
 test_directory = 'Numbers/'
 train_directory = 'Numbers/'
@@ -19,85 +20,132 @@ print(train_images.shape)
 tmp_imgs = train_images.flatten()
 print(tmp_imgs.shape)
 
-# Initialize placeholders
-x = tf.placeholder(dtype = tf.float32, shape = [None, train_images.shape[1], train_images.shape[2]])
-y = tf.placeholder(dtype = tf.int32, shape = [None])
+validation_images, validation_labels = data_handler.load_data(validation_directory, default_label)
+test_images, test_labels = data_handler.load_data(validation_directory, default_label)
 
-images_flat = tf.contrib.layers.flatten(x)
-logits = tf.contrib.layers.fully_connected(images_flat, 10, tf.nn.relu)
-loss = tf.reduce_mean(tf.nn.sparse_softmax_cross_entropy_with_logits(labels = y, logits = logits))
-train_op = tf.train.AdamOptimizer(learning_rate=0.01).minimize(loss)
-correct_pred = tf.argmax(logits, 1)
+# Number of training examples we have
+n_train = len(train_images)
+n_validation = len(validation_images)
+n_test = len(test_images)
+
+# set the number of neurons per layer
+# 45 input for each pixel
+n_input = 45
+# 5 because the example has 5 on hidden layer 1
+n_hidden1 = 5
+# 10 for output as classification
+n_output = 10
+
+# Neural Network Variables
+learning_rate = 1e-4
+n_iterations = 1000
+batch_size = 10
+dropout = 0.5
+
+X = tf.placeholder("float", [None, n_input])
+Y = tf.placeholder("float", [None, n_output])
+keep_prob = tf.placeholder(tf.float32)
+
+weights = {
+    'w1': tf.Variable(tf.truncated_normal([n_input, n_hidden1], stddev=0.1)),
+    'out': tf.Variable(tf.truncated_normal([n_hidden1, n_output], stddev=0.1)),
+}
+
+biases = {
+    'b1': tf.Variable(tf.constant(0.1, shape=[n_hidden1])),
+    'out': tf.Variable(tf.constant(0.1, shape=[n_output]))
+}
+
+layer_1 = tf.add(tf.matmul(X, weights['w1']), biases['b1'])
+layer_drop = tf.nn.dropout(layer_1, keep_prob)
+output_layer = tf.matmul(layer_1, weights['out']) + biases['out']
+
+cross_entropy = tf.reduce_mean(tf.nn.softmax_cross_entropy_with_logits(labels=Y, logits=output_layer))
+train_step = tf.train.AdamOptimizer(1e-4).minimize(cross_entropy)
+
+correct_pred = tf.equal(tf.argmax(output_layer, 1), tf.argmax(Y, 1))
 accuracy = tf.reduce_mean(tf.cast(correct_pred, tf.float32))
 
-tf.set_random_seed(1234)
+init = tf.global_variables_initializer()
 sess = tf.Session()
+sess.run(init)
 
-sess.run(tf.global_variables_initializer())
+# train on mini batches
+for i in range(n_iterations):
+    batch_x, batch_y = train_images, train_labels
+    sess.run(train_step, feed_dict={X: batch_x, Y: batch_y, keep_prob:dropout})
 
-for i in range(0, 25):
-    for i in range(500):
-            print('EPOCH', i)
-            _, accuracy_val = sess.run([train_op, accuracy], feed_dict={x: train_images, y: train_labels})
-            if i % 10 == 0:
-                print("Loss: ", loss)
-            print('DONE WITH EPOCH')
+    # print loss and accuracy (per minibatch)
+    if i%100==0:
+        minibatch_loss, minibatch_accuracy = sess.run([cross_entropy, accuracy], feed_dict={X: batch_x, Y: batch_y, keep_prob:1.0})
+        print("Iteration", str(i), "\t| Loss =", str(minibatch_loss), "\t| Accuracy =", str(minibatch_accuracy))
 
-    import matplotlib.pyplot as plt
-    import random
+test_accuracy = sess.run(accuracy, feed_dict={X: train_images, Y: train_labels, keep_prob:1.0})
+print("\nAccuracy on test set:", test_accuracy)
 
-# Pick 10 random images
-sample_indexes = random.sample(range(len(train_images)), 10)
-sample_images = [train_images[i] for i in sample_indexes]
-sample_labels = [train_labels[i] for i in sample_indexes]
-
-# Run the "correct_pred" operation
-predicted = sess.run([correct_pred], feed_dict={x: sample_images})[0]
-
-# Print the real and predicted labels
-print(sample_labels)
-print(predicted)
-
-# Display the predictions and the ground truth visually.
-fig = plt.figure(figsize=(10, 10))
-for i in range(len(sample_images)):
-    truth = sample_labels[i]
-    prediction = predicted[i]
-    plt.subplot(5, 2, 1 + i)
-    plt.axis('off')
-    color = 'green' if truth == prediction else 'red'
-    plt.text(5, 5, "Truth:        {0}\nPrediction: {1}".format(truth, prediction),
-             fontsize=12, color=color)
-    plt.imshow(sample_images[i], cmap="gray")
-
-plt.show()
-
-print("break here")
+rand_test = randint(0,9)
+prediction = sess.run(tf.argmax(output_layer,1), feed_dict={X: [train_images[rand_test]] })
+print ("Prediction for test image:", np.squeeze(prediction))
+print ("actual value for test image: " + str(rand_test))
 
 
-# validation_images, validation_labels = data_handler.load_data(validation_directory, default_label)
-# test_images, test_labels = data_handler.load_data(validation_directory, default_label)
+print('break here')
+
+# # Initialize placeholders
+# x = tf.placeholder(dtype = tf.float32, shape = [None, train_images.shape[1], train_images.shape[2]])
+# y = tf.placeholder(dtype = tf.int32, shape = [None])
 #
-# # Number of training examples we have
-# n_train = len(train_images)
-# # Number of validation examples we have
-# n_validation = len(validation_images)
-# # Number of testing examples we have
-# n_test = len(test_images)
+# images_flat = tf.contrib.layers.flatten(x)
+# logits = tf.contrib.layers.fully_connected(images_flat, 10, tf.nn.relu)
+# loss = tf.reduce_mean(tf.nn.sparse_softmax_cross_entropy_with_logits(labels = y, logits = logits))
+# train_op = tf.train.AdamOptimizer(learning_rate=0.01).minimize(loss)
+# correct_pred = tf.argmax(logits, 1)
+# accuracy = tf.reduce_mean(tf.cast(correct_pred, tf.float32))
 #
-# # set the number of neurons per layer
-# # 45 input for each pixel
-# n_input = 45
-# # 5 because the example has 5 on hidden layer 1
-# n_hidden1 = 5
-# # 10 for output as classification
-# n_output = 10
+# tf.set_random_seed(1234)
+# sess = tf.Session()
 #
-# # Neural Network Variables
-# learning_rate = 1e-4
-# n_iterations = 1000
-# batch_size = 10
-# dropout = 0.5
+# sess.run(tf.global_variables_initializer())
+#
+# for i in range(0, 25):
+#     for i in range(500):
+#             print('EPOCH', i)
+#             _, accuracy_val = sess.run([train_op, accuracy], feed_dict={x: train_images, y: train_labels})
+#             if i % 10 == 0:
+#                 print("Loss: ", loss)
+#             print('DONE WITH EPOCH')
+#
+#     import matplotlib.pyplot as plt
+#     import random
+#
+# # Pick 10 random images
+# sample_indexes = random.sample(range(len(train_images)), 10)
+# sample_images = [train_images[i] for i in sample_indexes]
+# sample_labels = [train_labels[i] for i in sample_indexes]
+#
+# # Run the "correct_pred" operation
+# predicted = sess.run([correct_pred], feed_dict={x: sample_images})[0]
+#
+# # Print the real and predicted labels
+# print(sample_labels)
+# print(predicted)
+#
+# # Display the predictions and the ground truth visually.
+# fig = plt.figure(figsize=(10, 10))
+# for i in range(len(sample_images)):
+#     truth = sample_labels[i]
+#     prediction = predicted[i]
+#     plt.subplot(5, 2, 1 + i)
+#     plt.axis('off')
+#     color = 'green' if truth == prediction else 'red'
+#     plt.text(5, 5, "Truth:        {0}\nPrediction: {1}".format(truth, prediction),
+#              fontsize=12, color=color)
+#     plt.imshow(sample_images[i], cmap="gray")
+#
+# plt.show()
+#
+# print("break here")
+
 
 
 
