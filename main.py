@@ -68,22 +68,29 @@ sess = tf.Session()
 sess.run(init)
 
 
-loss = []
-loss_epoch = []
+loss_plot = []
+accuracy_plot = []
 for j in range(n_epochs):
     # train on batch (all images)
     sess.run(train_step, feed_dict={X: train_images, Y: train_labels, keep_prob:dropout})
     # Gets the Loss and Accuracy on the set as of the current epoch
     epoch_loss, epoch_accuracy = sess.run([cross_entropy, accuracy], feed_dict={X: train_images, Y: train_labels, keep_prob:1.0})
-    loss.append(epoch_loss)
-    loss_epoch.append(j)
+    loss_plot.append(epoch_loss)
+    accuracy_plot.append(epoch_accuracy)
     print("Epoch ", str(j), "\t| Loss =", str(epoch_loss), "\t| Accuracy =", str(epoch_accuracy))
 
 # Displays the Mean Squared Errors per Epoch
-plt.plot(loss_epoch, loss)
+plt.plot(loss_plot)
 plt.xlabel('Epochs')
 plt.ylabel("Mean Squared Error (Loss)")
 plt.title("Epochs vs Mean Squared Error")
+plt.show()
+
+# Displays the Mean Squared Errors per Epoch
+plt.plot(accuracy_plot)
+plt.xlabel('Epochs')
+plt.ylabel("Accuracy")
+plt.title("Epochs vs Accuracy")
 plt.show()
 
 # Pick 10 random images from the Test Set
