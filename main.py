@@ -6,21 +6,15 @@ import data_handler
 import random
 from random import randint
 
-test_directory = 'Numbers/'
+test_directory = 'Hard_Numbers/'
 train_directory = 'Numbers/'
 validation_directory = 'Numbers/'
 
 i = 0
 default_label = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
 train_images, train_labels = data_handler.load_data(train_directory, default_label)
-
-print(train_labels.ndim)
-print(train_images.shape)
-tmp_imgs = train_images.flatten()
-print(tmp_imgs.shape)
-
+test_images, test_labels = data_handler.load_data(test_directory, default_label)
 validation_images, validation_labels = data_handler.load_data(validation_directory, default_label)
-test_images, test_labels = data_handler.load_data(validation_directory, default_label)
 
 # Number of training examples we have
 n_train = len(train_images)
@@ -38,6 +32,7 @@ n_output = 10
 # Neural Network Variables
 learning_rate = 0.0001
 n_iterations = 1000
+n_epochs = 10
 batch_size = 10
 dropout = 0.5
 
@@ -69,15 +64,17 @@ init = tf.global_variables_initializer()
 sess = tf.Session()
 sess.run(init)
 
-# train on mini batches
-for i in range(n_iterations):
-    batch_x, batch_y = train_images, train_labels
-    sess.run(train_step, feed_dict={X: batch_x, Y: batch_y, keep_prob:dropout})
+for j in range(n_epochs):
+    print("Epoch " + str(j))
+    # train on mini batches
+    for i in range(n_iterations):
+        batch_x, batch_y = train_images, train_labels
+        sess.run(train_step, feed_dict={X: batch_x, Y: batch_y, keep_prob:dropout})
 
-    # print loss and accuracy (per minibatch)
-    if i%100==0:
-        minibatch_loss, minibatch_accuracy = sess.run([cross_entropy, accuracy], feed_dict={X: batch_x, Y: batch_y, keep_prob:1.0})
-        print("Iteration", str(i), "\t| Loss =", str(minibatch_loss), "\t| Accuracy =", str(minibatch_accuracy))
+        # print loss and accuracy (per minibatch)
+        if i%100==0:
+            minibatch_loss, minibatch_accuracy = sess.run([cross_entropy, accuracy], feed_dict={X: batch_x, Y: batch_y, keep_prob:1.0})
+            print("Iteration", str(i), "\t| Loss =", str(minibatch_loss), "\t| Accuracy =", str(minibatch_accuracy))
 
 test_accuracy = sess.run(accuracy, feed_dict={X: test_images, Y: test_labels, keep_prob: 1.0})
 print("\nAccuracy on test set:", test_accuracy)
@@ -92,9 +89,9 @@ print ("actual value for test image: " + str(rand_test))
 
 
 # Pick 10 random images
-sample_indexes = random.sample(range(len(train_images)), 10)
-sample_images = [train_images[i] for i in sample_indexes]
-sample_labels = [train_labels[i] for i in sample_indexes]
+sample_indexes = random.sample(range(len(test_images)), 10)
+sample_images = [test_images[i] for i in sample_indexes]
+sample_labels = [test_labels[i] for i in sample_indexes]
 
 # Run the "correct_pred" operation
 predicted = sess.run(tf.argmax(output_layer,1), feed_dict={X: sample_images})
