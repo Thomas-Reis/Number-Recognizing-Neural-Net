@@ -21,6 +21,8 @@ dropout = 0.5
 # Setting the initial values for the connections/inputs for the neural network to each layer
 initial_w1 = 0.01
 initial_w2 = 0.01
+bias1 = 0.001
+bias2 = 0.001
 
 # Directories for sample
 test_directory = 'Test_Numbers/'
@@ -49,11 +51,17 @@ weights = {
     'out': tf.Variable(tf.truncated_normal([n_hidden1, n_output], stddev=initial_w2)),
 }
 
+# setting low biases as the inputs should not change TOO much
+biases = {
+    'b1': tf.Variable(tf.constant(bias1, shape=[n_hidden1])),
+    'out': tf.Variable(tf.constant(bias2, shape=[n_output]))
+}
+
 # initializes the layers with the given weights, inputs, and biases
 # tf.add sums up the contents, as a layer should do (sum(weight * input))
 # tf.matmul = matrix multiplication (input vector x Weights vector)
-layer_1 = tf.matmul(X, weights['w1'])
-output_layer = tf.matmul(layer_1, weights['out'])
+layer_1 = tf.add(tf.matmul(X, weights['w1']), biases['b1'])
+output_layer = tf.add(tf.matmul(layer_1, weights['out']), biases['out'])
 
 # Attempts to reduce the mean between the actual labels and output layer labels,
 # Y is like a variable name, the actual labels are assigned later when we call run
