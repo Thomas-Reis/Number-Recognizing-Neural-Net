@@ -25,8 +25,8 @@ initial_bias1 = 0.001
 initial_bias2 = 0.001
 
 # Directories for sample
-test_directory = 'Hard_Numbers/'
-train_directory = 'Numbers/'
+test_directory = 'Test_Numbers/'
+train_directory = 'Train_Numbers/'
 
 # the default label for classification (no classification), 10 values for each digit
 default_label = [0] * 10
