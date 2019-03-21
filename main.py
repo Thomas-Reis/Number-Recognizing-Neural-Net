@@ -22,7 +22,7 @@ n_validation = len(validation_images)
 n_test = len(test_images)
 
 # set the number of neurons per layer
-# 45 inputs for each pixel
+# 45 inputs for each pixel (do not touch unless image sizes change)
 n_input = 45
 # 5 because the example has 5 on hidden layer 1
 n_hidden1 = 5
@@ -30,19 +30,20 @@ n_hidden1 = 5
 n_output = 10
 
 # Neural Network Variables
-learning_rate = 0.0001
+learning_rate = 0.001
 n_iterations = 1000
 n_epochs = 10
-batch_size = 10
 dropout = 0.5
+# do not touch unless you add more images
+batch_size = 10
 
 X = tf.placeholder("float", [None, n_input])
 Y = tf.placeholder("float", [None, n_output])
 keep_prob = tf.placeholder(tf.float32)
 
 weights = {
-    'w1': tf.Variable(tf.truncated_normal([n_input, n_hidden1], stddev=0.1)),
-    'out': tf.Variable(tf.truncated_normal([n_hidden1, n_output], stddev=0.1)),
+    'w1': tf.Variable(tf.truncated_normal([n_input, n_hidden1], stddev=0.01)),
+    'out': tf.Variable(tf.truncated_normal([n_hidden1, n_output], stddev=0.01)),
 }
 
 biases = {
@@ -55,7 +56,7 @@ layer_drop = tf.nn.dropout(layer_1, keep_prob)
 output_layer = tf.matmul(layer_1, weights['out']) + biases['out']
 
 cross_entropy = tf.reduce_mean(tf.nn.softmax_cross_entropy_with_logits(labels=Y, logits=output_layer))
-train_step = tf.train.AdamOptimizer(1e-4).minimize(cross_entropy)
+train_step = tf.train.AdamOptimizer(learning_rate).minimize(cross_entropy)
 
 correct_pred = tf.equal(tf.argmax(output_layer, 1), tf.argmax(Y, 1))
 accuracy = tf.reduce_mean(tf.cast(correct_pred, tf.float32))
@@ -68,12 +69,10 @@ for j in range(n_epochs):
     print("Epoch " + str(j))
     # train on mini batches
     for i in range(n_iterations):
-        batch_x, batch_y = train_images, train_labels
-        sess.run(train_step, feed_dict={X: batch_x, Y: batch_y, keep_prob:dropout})
-
+        sess.run(train_step, feed_dict={X: train_images, Y: train_labels, keep_prob:dropout})
         # print loss and accuracy (per minibatch)
         if i%100==0:
-            minibatch_loss, minibatch_accuracy = sess.run([cross_entropy, accuracy], feed_dict={X: batch_x, Y: batch_y, keep_prob:1.0})
+            minibatch_loss, minibatch_accuracy = sess.run([cross_entropy, accuracy], feed_dict={X: train_images, Y: train_labels, keep_prob:1.0})
             print("Iteration", str(i), "\t| Loss =", str(minibatch_loss), "\t| Accuracy =", str(minibatch_accuracy))
 
 test_accuracy = sess.run(accuracy, feed_dict={X: test_images, Y: test_labels, keep_prob: 1.0})
@@ -97,8 +96,8 @@ sample_labels = [test_labels[i] for i in sample_indexes]
 predicted = sess.run(tf.argmax(output_layer,1), feed_dict={X: sample_images})
 
 # Print the real and predicted labels
-print(sample_labels)
-print(predicted)
+# print(sample_labels)
+# print(predicted)
 
 # Display the predictions and the ground truth visually.
 fig = plt.figure(figsize=(10, 10))
