@@ -10,8 +10,10 @@ test_directory = 'Hard_Numbers/'
 train_directory = 'Numbers/'
 validation_directory = 'Numbers/'
 
-i = 0
+# the default label for classification (no classification), 10 values for each digit
 default_label = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+
+# Loads the training, testing, and validation images, as well as their labels
 train_images, train_labels = data_handler.load_data(train_directory, default_label)
 test_images, test_labels = data_handler.load_data(test_directory, default_label)
 validation_images, validation_labels = data_handler.load_data(validation_directory, default_label)
@@ -34,8 +36,6 @@ learning_rate = 0.001
 n_iterations = 1000
 n_epochs = 10
 dropout = 0.5
-# do not touch unless you add more images
-batch_size = 10
 
 X = tf.placeholder("float", [None, n_input])
 Y = tf.placeholder("float", [None, n_output])
@@ -46,9 +46,10 @@ weights = {
     'out': tf.Variable(tf.truncated_normal([n_hidden1, n_output], stddev=0.01)),
 }
 
+# setting low biases as the inputs should not change TOO much
 biases = {
-    'b1': tf.Variable(tf.constant(0.1, shape=[n_hidden1])),
-    'out': tf.Variable(tf.constant(0.1, shape=[n_output]))
+    'b1': tf.Variable(tf.constant(0.001, shape=[n_hidden1])),
+    'out': tf.Variable(tf.constant(0.001, shape=[n_output]))
 }
 
 layer_1 = tf.add(tf.matmul(X, weights['w1']), biases['b1'])
