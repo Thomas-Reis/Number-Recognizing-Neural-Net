@@ -15,7 +15,7 @@ n_output = 10
 # Neural Network Variables
 learning_rate = 0.001
 n_iterations = 100
-n_epochs = 200
+n_epochs = 100
 dropout = 0.5
 
 # Setting the initial values for the connections/inputs for the neural network to each layer
@@ -94,8 +94,10 @@ for j in range(n_epochs):
         neural_network.run([cross_entropy, accuracy], feed_dict={X: train_images, Y: train_labels, keep_prob: 1.0})
     loss_plot.append(epoch_loss)
     accuracy_plot.append(epoch_accuracy)
-    print("Epoch ", str(j), "\t| Loss =", str(epoch_loss), "\t| Accuracy =", str(epoch_accuracy))
+    print("Epoch ", str(j), "    | Loss =", str(epoch_loss), "    | Accuracy =", str(epoch_accuracy))
 
+# Prints a newline to separate output from runs with resulting test outputs
+print()
 # Displays the Mean Squared Errors per Epoch
 plt.plot(loss_plot)
 plt.xlabel('Epochs')
@@ -114,33 +116,32 @@ plt.show()
 sample_indexes = random.sample(range(len(test_images)), 10)
 sample_images = [test_images[i] for i in sample_indexes]
 sample_labels = [test_labels[i] for i in sample_indexes]
-
 # Runs the neural net to classify the test images
-predicted = neural_network.run(tf.argmax(output_layer, 1), feed_dict={X: sample_images})
+results = neural_network.run(tf.argmax(output_layer, 1), feed_dict={X: sample_images})
 
 # Display the prediction and Test Results Visually.
 fig = plt.figure(figsize=(10, 5))
 
 num_correct = 0
 for i in range(len(sample_images)):
-    actual = np.where(sample_labels[i] == 1)
-    prediction = predicted[i]
+    actual_result = np.where(sample_labels[i] == 1)
+    yielded_result = results[i]
     # 5 rows, 2 columns, for 10 images. 1+i for the index of which subplot to write to (min of 1)
     plt.subplot(3, 4, i + 1)
     plt.axis('off')
     # sets the output color based on whether or not the Neural Net predicted correctly
-    if actual == prediction:
+    if actual_result == yielded_result:
         color = 'green'
         num_correct += 1
     else:
         color = 'red'
     # cleans the prediction for display
-    predict_string = str(actual[0]).replace('[', '').replace(']', '')
-    plt.text(5, 5, "Actual = {}\nPredicted = {}".format(predict_string, prediction), color=color)
+    predict_string = str(actual_result[0]).replace('[', '').replace(']', '')
+    plt.text(5, 5, "Actual = {}\nPredicted = {}".format(predict_string, yielded_result), color=color)
     plt.imshow(np.reshape(sample_images[i], (-1, 5)), cmap="gray")
 
 
-print("\nAccuracy on test set: " + str(num_correct) + '/' + str(len(sample_images)))
+print("Accuracy on Sampled test set: " + str(num_correct) + '/' + str(len(sample_images)))
 fig.suptitle("Test Set Results", fontsize=36)
 plt.show()
 
