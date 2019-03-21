@@ -21,8 +21,8 @@ dropout = 0.5
 # Setting the initial values for the connections/inputs for the neural network to each layer
 initial_w1 = 0.01
 initial_w2 = 0.01
-initial_bias1 = 0.001
-initial_bias2 = 0.001
+bias1 = 0.001
+bias2 = 0.001
 
 # Directories for sample
 test_directory = 'Test_Numbers/'
@@ -53,8 +53,8 @@ weights = {
 
 # setting low biases as the inputs should not change TOO much
 biases = {
-    'b1': tf.Variable(tf.constant(initial_bias1, shape=[n_hidden1])),
-    'out': tf.Variable(tf.constant(initial_bias2, shape=[n_output]))
+    'b1': tf.Variable(tf.constant(bias1, shape=[n_hidden1])),
+    'out': tf.Variable(tf.constant(bias2, shape=[n_output]))
 }
 
 # initializes the layers with the given weights, inputs, and biases
