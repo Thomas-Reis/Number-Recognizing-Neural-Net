@@ -16,6 +16,7 @@ def load_data(directory, default_label):
             # Sets a numpy array of size [width x height] with the greyscale value of each pixel
             # (>200 = White), (<50 = Black))
             arr = np.array(img)
+            # Turns the 2d array into a 1d array (this allows each element as input to the neural network)
             arr = np.concatenate(arr).ravel()
 
             # takes the first character of the file, classifies it as that (eg. 0_test.bmp would classify as 0)
