@@ -99,11 +99,9 @@ sample_images = [test_images[i] for i in sample_indexes]
 sample_labels = [test_labels[i] for i in sample_indexes]
 
 # Run the "correct_pred" operation
-predicted = sess.run(tf.argmax(output_layer,1), feed_dict={X: sample_images})
+predicted = sess.run(tf.argmax(output_layer, 1), feed_dict={X: sample_images})
 
-
-
-# Display the predictions and the ground truth visually.
+# Display the prediction and Test Results Visually.
 fig = plt.figure(figsize=(10, 5))
 
 for i in range(len(sample_images)):
