@@ -86,7 +86,7 @@ plt.ylabel("Mean Squared Error (Loss)")
 plt.title("Epochs vs Mean Squared Error")
 plt.show()
 
-# Displays the Mean Squared Errors per Epoch
+# Displays the Accuracy per Epoch
 plt.plot(accuracy_plot)
 plt.xlabel('Epochs')
 plt.ylabel("Accuracy")
