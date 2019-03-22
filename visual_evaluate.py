@@ -39,5 +39,5 @@ def evaluate(images, labels, neural_network, output_layer, X, set_name):
         plt.imshow(np.reshape(sample_images[i], (-1, 5)), cmap="gray")
 
     print("Accuracy on " + set_name + " set: " + str(num_correct) + '/' + str(len(sample_images)))
-    fig.suptitle("Test Set Results", fontsize=36)
+    fig.suptitle(set_name + " Set Results", fontsize=36)
     plt.show()
